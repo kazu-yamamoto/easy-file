@@ -1,4 +1,7 @@
-module System.EasyFile.Win32 where
+module System.EasyFile.Win32 (
+      module System.EasyFile.Win32
+    , module System.FilePath.Win32
+    ) where
 
 import Control.Applicative
 import Data.Time
@@ -13,6 +16,12 @@ import qualified System.Directory as D (
   , getUserDocumentsDirectory
   , getTemporaryDirectory
   , canonicalizePath
+  )
+import System.FilePath.Win32 (
+    isRelative
+  , isAbsolute
+  , isValid
+  , makeValid
   )
 
 ----------------------------------------------------------------

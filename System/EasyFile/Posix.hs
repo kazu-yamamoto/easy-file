@@ -3,6 +3,7 @@
 module System.EasyFile.Posix (
     module System.EasyFile.Posix
   , module System.Directory
+  , module System.FilePath.Posix
   ) where
 
 ----------------------------------------------------------------
@@ -20,6 +21,12 @@ import System.Directory (
   , getUserDocumentsDirectory
   , getTemporaryDirectory
   , canonicalizePath
+  )
+import System.FilePath.Posix (
+    isRelative
+  , isAbsolute
+  , isValid
+  , makeValid
   )
 
 ----------------------------------------------------------------
