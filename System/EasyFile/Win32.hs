@@ -73,8 +73,22 @@ filetimeToUTCTime (FILETIME x) = posixSecondsToUTCTime . realToFrac $ (fromInteg
 hasSubDirectories :: FilePath -> IO (Maybe Bool)
 hasSubDirectories _ = return Nothing
 
+----------------------------------------------------------------
+
+getCurrentDirectory :: IO FilePath
+getCurrentDirectory = b2s <$> D.getCurrentDirectory
+
 getHomeDirectory :: IO FilePath
 getHomeDirectory = b2s <$> D.getHomeDirectory
+
+getAppUserDataDirectory :: IO FilePath
+getAppUserDataDirectory = b2s <$> D.getAppUserDataDirectory
+
+getUserDocumentsDirectory :: IO FilePath
+getUserDocumentsDirectory = b2s <$> D.getUserDocumentsDirectory
+
+getTemporaryDirectory :: IO FilePath
+getTemporaryDirectory = b2s <$> D.getTemporaryDirectory
 
 b2s :: FilePath -> FilePath
 b2s [] = []
