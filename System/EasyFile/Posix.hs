@@ -1,18 +1,35 @@
 {-# LANGUAGE CPP #-}
 
-module System.EasyFile.Posix where
+module System.EasyFile.Posix (
+    module System.EasyFile.Posix
+  , module System.Directory
+  ) where
+
+----------------------------------------------------------------
 
 import Control.Applicative
 import Data.Time
 import Data.Time.Clock.POSIX
 import System.Posix.Files
 import System.Posix.Types
+import System.Directory (
+    getCurrentDirectory
+  , getHomeDirectory
+  , getAppUserDataDirectory
+  , getUserDocumentsDirectory
+  , getTemporaryDirectory
+  , canonicalizePath
+  )
+
+----------------------------------------------------------------
 
 isSymlink :: FilePath -> IO Bool
 isSymlink file = isSymbolicLink <$> getSymbolicLinkStatus file
 
 getLinkCount :: FilePath -> IO (Maybe Int)
 getLinkCount file = Just . fromIntegral . linkCount <$> getFileStatus file
+
+----------------------------------------------------------------
 
 getCreationTime :: FilePath -> IO (Maybe UTCTime)
 getCreationTime _ = return Nothing

@@ -1,22 +1,18 @@
 {-# LANGUAGE CPP #-}
 
 {-
-
-- Provide getStatusChangeTime in addition to getModificationTime.
-- Use UTCTime instead of ClockTime
-- Single file separator '/'. (</>) should use '/' only.
-  getCurrentDirectory and getHomeDirectory should convert '\' to '/'.
-
+- getCurrentDirectory and getHomeDirectory should convert '\' to '/'.
+- isRelative in System.FilePath
 -}
 
 module System.EasyFile (
-    isSymlink
-  , getLinkCount
-  , getCreationTime
-  , getChangeTime
-  , getModificationTime
-  , getAccessTime
-  , hasSubDirectories
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+    module System.EasyFile.Win32
+#else
+    module System.EasyFile.Posix
+#endif
+  , module System.Directory
+  , module System.FilePath.Posix
   ) where
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
@@ -24,3 +20,67 @@ import System.EasyFile.Win32
 #else
 import System.EasyFile.Posix
 #endif
+
+import System.FilePath.Posix (
+    FilePath
+  , pathSeparator
+  , pathSeparators
+  , isPathSeparator
+  , searchPathSeparator
+  , isSearchPathSeparator
+  , extSeparator
+  , isExtSeparator
+  , splitSearchPath
+  , getSearchPath
+  , splitExtension
+  , takeExtension
+  , replaceExtension
+  , dropExtension
+  , addExtension
+  , hasExtension
+  , (<.>)
+  , splitExtensions
+  , dropExtensions
+  , takeExtensions
+  , splitDrive
+  , joinDrive
+  , takeDrive
+  , hasDrive
+  , dropDrive
+  , isDrive
+  , splitFileName
+  , takeFileName
+  , replaceFileName
+  , dropFileName
+  , takeBaseName
+  , replaceBaseName
+  , takeDirectory
+  , replaceDirectory
+  , combine
+  , (</>)
+  , splitPath
+  , joinPath
+  , splitDirectories
+  , hasTrailingPathSeparator
+  , addTrailingPathSeparator
+  , dropTrailingPathSeparator
+  )
+
+import System.Directory (
+    createDirectory
+  , createDirectoryIfMissing
+  , removeDirectory
+  , removeDirectoryRecursive
+  , renameDirectory
+  , getDirectoryContents
+  , setCurrentDirectory
+  , removeFile
+  , renameFile
+  , copyFile
+  , doesFileExist
+  , doesDirectoryExist
+  , Permissions(..)
+  , getPermissions
+  , setPermissions
+  , copyPermissions
+  )
