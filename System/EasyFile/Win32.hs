@@ -1,6 +1,6 @@
 module System.EasyFile.Win32 (
       module System.EasyFile.Win32
-    , module System.FilePath.Win32
+    , module System.FilePath.Windows
     ) where
 
 import Control.Applicative
@@ -17,7 +17,7 @@ import qualified System.Directory as D (
   , getTemporaryDirectory
   , canonicalizePath
   )
-import System.FilePath.Win32 (
+import System.FilePath.Windows (
     isRelative
   , isAbsolute
   , isValid
