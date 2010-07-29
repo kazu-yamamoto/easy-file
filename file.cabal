@@ -1,0 +1,25 @@
+Name:                   file
+Version:                0.0.0
+Author:                 Kazu Yamamoto <kazu@iij.ad.jp>
+Maintainer:             Kazu Yamamoto <kazu@iij.ad.jp>
+License:                BSD3
+Synopsis:               Cross-platform File handling
+Description:            Cross-platform File handling for Unix/Mac/Windows
+Category:               System
+Cabal-Version:          >= 1.6
+Build-Type:             Simple
+library
+  if impl(ghc >= 6.12)
+    GHC-Options:        -Wall -O2 -fno-warn-unused-do-bind
+  else
+    GHC-Options:        -Wall -O2
+  Exposed-Modules:      System.EasyFile
+  if os(windows)
+    Other-Modules:      System.EasyFile.Win32
+  else
+    Other-Modules:      System.EasyFile.Posix
+  Build-Depends:        base >= 4 && < 5
+  if os(windows)
+    Build-Depends:      Win32, time
+  else
+    Build-Depends:      unix, time
