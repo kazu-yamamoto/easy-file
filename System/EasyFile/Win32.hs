@@ -81,8 +81,8 @@ getCurrentDirectory = b2s <$> D.getCurrentDirectory
 getHomeDirectory :: IO FilePath
 getHomeDirectory = b2s <$> D.getHomeDirectory
 
-getAppUserDataDirectory :: IO FilePath
-getAppUserDataDirectory = b2s <$> D.getAppUserDataDirectory
+getAppUserDataDirectory :: String -> IO FilePath
+getAppUserDataDirectory x = b2s <$> D.getAppUserDataDirectory x
 
 getUserDocumentsDirectory :: IO FilePath
 getUserDocumentsDirectory = b2s <$> D.getUserDocumentsDirectory
