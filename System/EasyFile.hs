@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP #-}
 
 {-
-- getCurrentDirectory and getHomeDirectory should convert '\' to '/'.
 - isRelative in System.FilePath
 -}
 

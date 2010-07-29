@@ -10,6 +10,7 @@ module System.EasyFile.Posix (
 import Control.Applicative
 import Data.Time
 import Data.Time.Clock.POSIX
+import System.Environment
 import System.Posix.Files
 import System.Posix.Types
 import System.Directory (
@@ -59,3 +60,8 @@ hasSubDirectories file = do
   Just n <- getLinkCount file
   return $ Just (n > 2)
 #endif
+
+----------------------------------------------------------------
+
+getHomeDirectory2 :: IO (Maybe FilePath)
+getHomeDirectory2 = (Just <$> getEnv "HOME") `catch` \_ -> return Nothing

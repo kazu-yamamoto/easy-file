@@ -3,6 +3,7 @@ module System.EasyFile.Win32 where
 import Control.Applicative
 import Data.Time
 import Data.Time.Clock.POSIX
+import System.Environment
 import System.Win32.File
 import System.Win32.Time
 import qualified System.Directory as D (
@@ -95,3 +96,8 @@ b2s [] = []
 b2s (c:cs)
  | c == '\\' = '/' : b2s cs
  | otherwise = c   : b2s cs
+
+----------------------------------------------------------------
+
+getHomeDirectory2 :: IO (Maybe FilePath)
+getHomeDirectory2 = (Just . b2s <$> getEnv "HOME") `catch` \_ -> return Nothing
