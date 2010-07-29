@@ -49,6 +49,8 @@ getAccessTime file = epochTimeToUTCTime . accessTime <$> getFileStatus file
 epochTimeToUTCTime :: EpochTime -> UTCTime
 epochTimeToUTCTime = posixSecondsToUTCTime . realToFrac
 
+----------------------------------------------------------------
+
 hasSubDirectories :: FilePath -> IO (Maybe Bool)
 #ifdef darwin_HOST_OS
 hasSubDirectories _ = return Nothing

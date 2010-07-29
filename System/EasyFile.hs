@@ -15,11 +15,15 @@ module System.EasyFile (
   , module System.FilePath.Posix
   ) where
 
+----------------------------------------------------------------
+
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 import System.EasyFile.Win32
 #else
 import System.EasyFile.Posix
 #endif
+
+----------------------------------------------------------------
 
 import System.FilePath.Posix (
     FilePath
@@ -65,6 +69,8 @@ import System.FilePath.Posix (
   , addTrailingPathSeparator
   , dropTrailingPathSeparator
   )
+
+----------------------------------------------------------------
 
 import System.Directory (
     createDirectory

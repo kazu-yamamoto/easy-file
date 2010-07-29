@@ -5,12 +5,24 @@ import Data.Time
 import Data.Time.Clock.POSIX
 import System.Win32.File
 import System.Win32.Time
+import qualified System.Directory as D (
+    getCurrentDirectory
+  , getHomeDirectory
+  , getAppUserDataDirectory
+  , getUserDocumentsDirectory
+  , getTemporaryDirectory
+  , canonicalizePath
+  )
+
+----------------------------------------------------------------
 
 isSymlink :: FilePath -> IO Bool
 isSymlink _ = return False
 
 getLinkCount :: FilePath -> IO (Maybe Int)
 getLinkCount _ = return Nothing
+
+----------------------------------------------------------------
 
 getCreationTime :: FilePath -> IO (Maybe UTCTime)
 getCreationTime file = Just . creationTime <$> fileTime file
@@ -56,5 +68,16 @@ fileTime file = do
 filetimeToUTCTime :: FILETIME -> UTCTime
 filetimeToUTCTime (FILETIME x) = posixSecondsToUTCTime . realToFrac $ (fromIntegral x - 116444736000000000) `div` 10000000
 
+----------------------------------------------------------------
+
 hasSubDirectories :: FilePath -> IO (Maybe Bool)
 hasSubDirectories _ = return Nothing
+
+getHomeDirectory :: IO FilePath
+getHomeDirectory = b2s <$> D.getHomeDirectory
+
+b2s :: FilePath -> FilePath
+b2s [] = []
+b2s (c:cs)
+ | c == '\\' = '/' : b2s cs
+ | otherwise = c   : b2s cs
