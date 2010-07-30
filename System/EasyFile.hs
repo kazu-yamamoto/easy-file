@@ -84,13 +84,17 @@ module System.EasyFile (
   , pathSeparator
   , pathSeparators
   , isPathSeparator
+{- -- xxx
   , searchPathSeparator
   , isSearchPathSeparator
+-}
   , extSeparator
   , isExtSeparator
+{- -- xxx
   -- * Path methods (environment $PATH)
   , splitSearchPath
   , getSearchPath
+-}
   -- * Extension methods
   , splitExtension
   , takeExtension

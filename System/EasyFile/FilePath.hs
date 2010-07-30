@@ -1,7 +1,8 @@
 {-# LANGUAGE CPP #-}
 
 module System.EasyFile.FilePath (
-    module System.FilePath.Posix
+    module System.EasyFile.FilePath
+  , module System.FilePath.Posix
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
   , module System.FilePath.Windows
 #endif
@@ -9,11 +10,9 @@ module System.EasyFile.FilePath (
 
 import System.FilePath.Posix (
     FilePath
-  , pathSeparator
-  , pathSeparators
   , isPathSeparator
-  , searchPathSeparator
-  , isSearchPathSeparator
+--  , searchPathSeparator  -- xxx
+--  , isSearchPathSeparator -- xxx
   , extSeparator
   , isExtSeparator
   , splitSearchPath
@@ -52,18 +51,38 @@ import System.FilePath.Posix (
   , dropTrailingPathSeparator
   )
 
+import qualified System.FilePath.Posix as F (
+    pathSeparator
+  )
+
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 import System.FilePath.Windows (
-    isRelative
-  , isAbsolute
-  , isValid
-  , makeValid
-  )
 #else
 import System.FilePath.Posix (
+#endif
     isRelative
   , isAbsolute
   , isValid
   , makeValid
   )
+
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+import qualified System.FilePath.Windows as P (
+#else
+import qualified System.FilePath.Posix as P (
 #endif
+    pathSeparators
+  )
+
+-- | The character that separates directories.
+--
+-- > pathSeparator == '/'
+pathSeparator :: Char
+pathSeparator = F.pathSeparator
+
+-- | The list of all possible separators.
+--
+-- > Windows: pathSeparators == ['\\', '/']
+-- > Posix:   pathSeparators == ['/']
+pathSeparators :: [Char]
+pathSeparators = P.pathSeparators
