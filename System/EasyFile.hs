@@ -1,6 +1,5 @@
 {-|
-This module is for file handling in cross-platform environment
-including Unix\/Mac\/Windows.
+This is a module of cross-platform file handling for Unix\/Mac\/Windows.
 
 The standard module "System.Directory" and "System.FilePath" have
 following shortcomings:
@@ -37,6 +36,12 @@ This module aims to resolve these problems and provides:
 
 * Necessary functions in "System.Directory" and "System.FilePath".
 
+This is alpha version. The specification would be changed in the
+future. Please send comments to:
+
+@
+    <http://github.com/kazu-yamamoto/easy-file/issues>
+@
 -}
 
 module System.EasyFile (

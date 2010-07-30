@@ -2,7 +2,9 @@
 
 {-
   This module based on System.FilePath.Internal of file-path.
-  See the copyright in the end of file.
+  The code was copied with the permission from the author
+  of file-path, Neil Mitchell. Thanks!
+  See the copyright at the end of file.
 -}
 
 module System.EasyFile.FilePath (
