@@ -10,14 +10,13 @@ Cabal-Version:          >= 1.6
 Build-Type:             Simple
 library
   if impl(ghc >= 6.12)
-    GHC-Options:        -Wall -O2 -fno-warn-unused-do-bind
+    GHC-Options:        -Wall -fno-warn-unused-do-bind
   else
-    GHC-Options:        -Wall -O2
+    GHC-Options:        -Wall
   Exposed-Modules:      System.EasyFile
-  if os(windows)
-    Other-Modules:      System.EasyFile.Win32
-  else
-    Other-Modules:      System.EasyFile.Posix
+  Other-Modules:        System.EasyFile.FilePath
+                        System.EasyFile.Directory
+                        System.EasyFile.Missing
   Build-Depends:        base >= 4 && < 5
   if os(windows)
     Build-Depends:      Win32, time, directory, filepath
