@@ -45,7 +45,9 @@ module System.EasyFile.FilePath (
     normalise, equalFilePath,
     makeRelative,
     isRelative, isAbsolute,
+{- xxx
     isValid, makeValid
+-}
 
 #ifdef TESTING
     , isRelativeDrive
@@ -280,14 +282,13 @@ isLetter x = (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z')
 -- > uncurry (++) (splitDrive x) == x
 -- > Windows: splitDrive "file" == ("","file")
 -- > Windows: splitDrive "c:/file" == ("c:/","file")
--- > Windows: splitDrive "c:\\file" == ("c:\\","file")
 -- > Windows: splitDrive "\\\\shared\\test" == ("\\\\shared\\","test")
 -- > Windows: splitDrive "\\\\shared" == ("\\\\shared","")
 -- > Windows: splitDrive "\\\\?\\UNC\\shared\\file" == ("\\\\?\\UNC\\shared\\","file")
 -- > Windows: splitDrive "\\\\?\\UNCshared\\file" == ("\\\\?\\","UNCshared\\file")
 -- > Windows: splitDrive "\\\\?\\d:\\file" == ("\\\\?\\d:\\","file")
--- > Windows: splitDrive "/d" == ("","/d")
--- > Posix:   splitDrive "/test" == ("/","test")
+-- > Windows: splitDrive "/d" == ("","/d") -- xxx
+-- > Posix:   splitDrive "/test" == ("/","test") -- xxx
 -- > Posix:   splitDrive "//test" == ("//","test")
 -- > Posix:   splitDrive "test/file" == ("","test/file")
 -- > Posix:   splitDrive "file" == ("","file")
@@ -348,9 +349,9 @@ readDriveShareName name = addSlash a b
 --
 -- >          uncurry joinDrive (splitDrive x) == x
 -- > Windows: joinDrive "C:" "foo" == "C:foo"
--- > Windows: joinDrive "C:\\" "bar" == "C:\\bar"
--- > Windows: joinDrive "\\\\share" "foo" == "\\\\share\\foo"
--- > Windows: joinDrive "/:" "foo" == "/:\\foo"
+-- > Windows: joinDrive "C:/" "bar" == "C:/bar"
+-- > Windows: joinDrive "\\\\share" "foo" == "\\\\share/foo" -- xxx
+-- > Windows: joinDrive "/:" "foo" == "/:/foo" -- xxx
 joinDrive :: FilePath -> FilePath -> FilePath
 joinDrive a b | isPosix = a ++ b
               | null a = b
@@ -463,7 +464,7 @@ hasTrailingPathSeparator x = isPathSeparator (last x)
 --
 -- > hasTrailingPathSeparator (addTrailingPathSeparator x)
 -- > hasTrailingPathSeparator x ==> addTrailingPathSeparator x == x
--- > Posix:    addTrailingPathSeparator "test/rest" == "test/rest/"
+-- > addTrailingPathSeparator "test/rest" == "test/rest/"
 addTrailingPathSeparator :: FilePath -> FilePath
 addTrailingPathSeparator x = if hasTrailingPathSeparator x then x else x ++ [pathSeparator]
 
@@ -472,8 +473,7 @@ addTrailingPathSeparator x = if hasTrailingPathSeparator x then x else x ++ [pat
 --
 -- > dropTrailingPathSeparator "file/test/" == "file/test"
 -- > not (hasTrailingPathSeparator (dropTrailingPathSeparator x)) || isDrive x
--- > Posix:    dropTrailingPathSeparator "/" == "/"
--- > Windows:  dropTrailingPathSeparator "\\" == "\\"
+-- > dropTrailingPathSeparator "/" == "/"
 dropTrailingPathSeparator :: FilePath -> FilePath
 dropTrailingPathSeparator x =
     if hasTrailingPathSeparator x && not (isDrive x)
@@ -489,9 +489,8 @@ dropTrailingPathSeparator x =
 -- >           takeDirectory "/foo/bar/baz" == "/foo/bar"
 -- >           takeDirectory "/foo/bar/baz/" == "/foo/bar/baz"
 -- >           takeDirectory "foo/bar/baz" == "foo/bar"
--- > Windows:  takeDirectory "foo\\bar" == "foo"
--- > Windows:  takeDirectory "foo\\bar\\\\" == "foo\\bar"
--- > Windows:  takeDirectory "C:\\" == "C:\\"
+-- > Windows:  takeDirectory "foo\\bar\\\\" == "foo\\bar" -- xxx
+-- > Windows:  takeDirectory "C:/" == "C:/"
 takeDirectory :: FilePath -> FilePath
 takeDirectory x = if isDrive file then file
                   else if null res && not (null file) then file
@@ -536,7 +535,7 @@ combineAlways a b | null a = b
 -- > splitPath "test//item/" == ["test//","item/"]
 -- > splitPath "test/item/file" == ["test/","item/","file"]
 -- > splitPath "" == []
--- > Windows: splitPath "c:\\test\\path" == ["c:\\","test\\","path"]
+-- > Windows: splitPath "c:/test/path" == ["c:/","test/","path"]
 -- > Posix:   splitPath "/file/test" == ["/","file/","test"]
 splitPath :: FilePath -> [FilePath]
 splitPath x = [drive | drive /= ""] ++ f path
@@ -614,10 +613,9 @@ equalFilePath a b = f a == f b
 -- >          Valid y => equalFilePath x y || (isRelative x && makeRelative y x == x) || equalFilePath (y </> makeRelative y x) x
 -- >          makeRelative x x == "."
 -- >          null y || equalFilePath (makeRelative x (x </> y)) y || null (takeFileName x)
--- > Windows: makeRelative "C:\\Home" "c:\\home\\bob" == "bob"
--- > Windows: makeRelative "C:\\Home" "c:/home/bob" == "bob"
--- > Windows: makeRelative "C:\\Home" "D:\\Home\\Bob" == "D:\\Home\\Bob"
--- > Windows: makeRelative "C:\\Home" "C:Home\\Bob" == "C:Home\\Bob"
+-- > Windows: makeRelative "C:/Home" "c:/home/bob" == "bob"
+-- > Windows: makeRelative "C:/Home" "D:/Home/Bob" == "D:/Home/Bob"
+-- > Windows: makeRelative "C:/Home" "C:Home/Bob" == "C:Home/Bob"
 -- > Windows: makeRelative "/Home" "/home/bob" == "bob"
 -- > Posix:   makeRelative "/Home" "/home/bob" == "/home/bob"
 -- > Posix:   makeRelative "/home/" "/home/bob/foo/bar" == "bob/foo/bar"
@@ -659,11 +657,10 @@ makeRelative root path
 -- > Posix:   normalise "/test/file/../bob/fred/" == "/test/file/../bob/fred/"
 -- > Posix:   normalise "../bob/fred/" == "../bob/fred/"
 -- > Posix:   normalise "./bob/fred/" == "bob/fred/"
--- > Windows: normalise "c:\\file/bob\\" == "C:\\file\\bob\\"
--- > Windows: normalise "c:\\" == "C:\\"
--- > Windows: normalise "\\\\server\\test" == "\\\\server\\test"
--- > Windows: normalise "c:/file" == "C:\\file"
--- >          normalise "." == "."
+-- > Windows: normalise "c:\\file/bob\\" == "C:/file/bob/"
+-- > Windows: normalise "c:/" == "C:/"
+-- > Windows: normalise "\\\\server\\test" == "\\\\server\\test" -- xxx
+-- > Windows: normalise "." == "."
 -- > Posix:   normalise "./" == "./"
 normalise :: FilePath -> FilePath
 normalise path = joinDrive (normaliseDrive drv) (f pth)
@@ -694,13 +691,13 @@ normaliseDrive drive = if isJust $ readDriveLetter x2
 
         repSlash x = if isPathSeparator x then pathSeparator else x
 
+{- xxx
 -- information for validity functions on Windows
 -- see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/fs/naming_a_file.asp
 badCharacters :: [Char]
 badCharacters = ":*?><|\""
 badElements :: [FilePath]
 badElements = ["CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "CLOCK$"]
-
 
 -- | Is a FilePath valid, i.e. could you create a file like it?
 --
@@ -754,7 +751,7 @@ makeValid path = joinDrive drv $ validElements $ validChars pth
             where (a,b) = span isPathSeparator $ reverse x
         h x = if map toUpper a `elem` badElements then a ++ "_" <.> b else x
             where (a,b) = splitExtensions x
-
+-}
 
 -- | Is a path relative, or is it fixed to the root?
 --
