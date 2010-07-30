@@ -79,66 +79,7 @@ module System.EasyFile (
   , isSymlink
   , getLinkCount
   , hasSubDirectories
-  -- * Separator predicates
-  , FilePath
-  , pathSeparator
-  , pathSeparators
-  , isPathSeparator
-{- -- xxx
-  , searchPathSeparator
-  , isSearchPathSeparator
--}
-  , extSeparator
-  , isExtSeparator
-{- -- xxx
-  -- * Path methods (environment $PATH)
-  , splitSearchPath
-  , getSearchPath
--}
-  -- * Extension methods
-  , splitExtension
-  , takeExtension
-  , replaceExtension
-  , dropExtension
-  , addExtension
-  , hasExtension
-  , (<.>)
-  , splitExtensions
-  , dropExtensions
-  , takeExtensions
-  -- * Drive methods
-  , splitDrive
-  , joinDrive
-  , takeDrive
-  , hasDrive
-  , dropDrive
-  , isDrive
-  -- * Operations on a FilePath, as a list of directories
-  , splitFileName
-  , takeFileName
-  , replaceFileName
-  , dropFileName
-  , takeBaseName
-  , replaceBaseName
-  , takeDirectory
-  , replaceDirectory
-  , combine
-  , (</>)
-  , splitPath
-  , joinPath
-  , splitDirectories
-  -- * Low level FilePath operators
-  , hasTrailingPathSeparator
-  , addTrailingPathSeparator
-  , dropTrailingPathSeparator
-  -- * File name manipulators
---  , normalise -- xxx
---  , equalFilePath -- xxx
---  , makeRelative -- xxx
-  , isRelative
-  , isAbsolute
-  , isValid
-  , makeValid
+  , module System.EasyFile.FilePath
   ) where
 
 ----------------------------------------------------------------
