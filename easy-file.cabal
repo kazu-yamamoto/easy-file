@@ -5,6 +5,7 @@ Maintainer:             Kazu Yamamoto <kazu@iij.ad.jp>
 License:                BSD3
 Synopsis:               Cross-platform File handling
 Description:            Cross-platform File handling for Unix/Mac/Windows
+Homepage:               http://github.com/kazu-yamamoto/easy-file
 Category:               System
 Cabal-Version:          >= 1.6
 Build-Type:             Simple
@@ -22,3 +23,6 @@ library
     Build-Depends:      Win32, time, directory, filepath
   else
     Build-Depends:      unix, time, directory, filepath
+Source-Repository head
+  Type:                 git
+  Location:             git://github.com/kazu-yamamoto/easy-file.git
