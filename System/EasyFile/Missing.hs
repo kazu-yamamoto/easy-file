@@ -7,7 +7,6 @@ module System.EasyFile.Missing where
 import Control.Applicative
 import Data.Time
 import Data.Time.Clock.POSIX
-import System.Environment
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 import System.Win32.File
 import System.Win32.Time
@@ -16,16 +15,12 @@ import System.Posix.Files
 import System.Posix.Types
 #endif
 
-import qualified System.Directory as D (
-    getCurrentDirectory
-  , getHomeDirectory
-  , getAppUserDataDirectory
-  , getUserDocumentsDirectory
-  , getTemporaryDirectory
-  )
-
 ----------------------------------------------------------------
 
+{-|
+  This function tells whether or not a file\/directory is symbolic
+  link.
+-}
 isSymlink :: FilePath -> IO Bool
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 isSymlink _ = return False
@@ -33,11 +28,27 @@ isSymlink _ = return False
 isSymlink file = isSymbolicLink <$> getSymbolicLinkStatus file
 #endif
 
+{-|
+  This function returns the link counter of a file\/directory.
+-}
 getLinkCount :: FilePath -> IO (Maybe Int)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getLinkCount _ = return Nothing
 #else
 getLinkCount file = Just . fromIntegral . linkCount <$> getFileStatus file
+#endif
+
+{-|
+  This function returns whether or not a directory has sub-directories.
+-}
+
+hasSubDirectories :: FilePath -> IO (Maybe Bool)
+#ifdef darwin_HOST_OS
+hasSubDirectories _ = return Nothing
+#else
+hasSubDirectories file = do
+  Just n <- getLinkCount file
+  return $ Just (n > 2)
 #endif
 
 ----------------------------------------------------------------
@@ -92,6 +103,10 @@ getModificationTime file = epochTimeToUTCTime . modificationTime <$> getFileStat
   The NTFS file system delays updates to the last access time for
   a file by up to 1 hour after the last access.
 -}
+{-|
+The 'getModificationTime' operation returns the
+UTC time at which the file or directory was last accessed.
+-}
 getAccessTime :: FilePath -> IO UTCTime
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getAccessTime file = accessTime <$> fileTime file
@@ -131,47 +146,4 @@ filetimeToUTCTime (FILETIME x) = posixSecondsToUTCTime . realToFrac $ (fromInteg
 #else
 epochTimeToUTCTime :: EpochTime -> UTCTime
 epochTimeToUTCTime = posixSecondsToUTCTime . realToFrac
-#endif
-
-----------------------------------------------------------------
-
-hasSubDirectories :: FilePath -> IO (Maybe Bool)
-#ifdef darwin_HOST_OS
-hasSubDirectories _ = return Nothing
-#else
-hasSubDirectories file = do
-  Just n <- getLinkCount file
-  return $ Just (n > 2)
-#endif
-
-----------------------------------------------------------------
-
-getCurrentDirectory :: IO FilePath
-getCurrentDirectory = fixPath <$> D.getCurrentDirectory
-
-getHomeDirectory :: IO FilePath
-getHomeDirectory = fixPath <$> D.getHomeDirectory
-
-getAppUserDataDirectory :: String -> IO FilePath
-getAppUserDataDirectory x = fixPath <$> D.getAppUserDataDirectory x
-
-getUserDocumentsDirectory :: IO FilePath
-getUserDocumentsDirectory = fixPath <$> D.getUserDocumentsDirectory
-
-getTemporaryDirectory :: IO FilePath
-getTemporaryDirectory = fixPath <$> D.getTemporaryDirectory
-
-getHomeDirectory2 :: IO (Maybe FilePath)
-getHomeDirectory2 = (Just . fixPath <$> getEnv "HOME") `catch` \_ -> return Nothing
-
-----------------------------------------------------------------
-
-fixPath :: FilePath -> FilePath
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-fixPath [] = []
-fixPath (c:cs)
- | c == '\\' = '/' : fixPath cs
- | otherwise = c   : fixPath cs
-#else
-fixPath = id
 #endif
