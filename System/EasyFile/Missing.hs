@@ -41,7 +41,6 @@ getLinkCount file = Just . fromIntegral . linkCount <$> getFileStatus file
 {-|
   This function returns whether or not a directory has sub-directories.
 -}
-
 hasSubDirectories :: FilePath -> IO (Maybe Bool)
 #ifdef darwin_HOST_OS
 hasSubDirectories _ = return Nothing
@@ -142,7 +141,10 @@ fileTime file = do
   Haskell: FILETIME == DDWORD == Word64
 -}
 filetimeToUTCTime :: FILETIME -> UTCTime
-filetimeToUTCTime (FILETIME x) = posixSecondsToUTCTime . realToFrac $ (fromIntegral x - 116444736000000000) `div` 10000000
+filetimeToUTCTime (FILETIME x) = posixSecondsToUTCTime . realToFrac $ tm
+  where
+    tm :: Integer
+    tm = (fromIntegral x - 116444736000000000) `div` 10000000
 #else
 epochTimeToUTCTime :: EpochTime -> UTCTime
 epochTimeToUTCTime = posixSecondsToUTCTime . realToFrac
