@@ -1,0 +1,177 @@
+{-# LANGUAGE CPP #-}
+
+module System.EasyFile.Missing where
+
+----------------------------------------------------------------
+
+import Control.Applicative
+import Data.Time
+import Data.Time.Clock.POSIX
+import System.Environment
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+import System.Win32.File
+import System.Win32.Time
+#else
+import System.Posix.Files
+import System.Posix.Types
+#endif
+
+import qualified System.Directory as D (
+    getCurrentDirectory
+  , getHomeDirectory
+  , getAppUserDataDirectory
+  , getUserDocumentsDirectory
+  , getTemporaryDirectory
+  )
+
+----------------------------------------------------------------
+
+isSymlink :: FilePath -> IO Bool
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+isSymlink _ = return False
+#else
+isSymlink file = isSymbolicLink <$> getSymbolicLinkStatus file
+#endif
+
+getLinkCount :: FilePath -> IO (Maybe Int)
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+getLinkCount _ = return Nothing
+#else
+getLinkCount file = Just . fromIntegral . linkCount <$> getFileStatus file
+#endif
+
+----------------------------------------------------------------
+
+{-|
+The 'getCreationTime' operation returns the
+UTC time at which the file or directory was created.
+The time is only available on Windows.
+-}
+getCreationTime :: FilePath -> IO (Maybe UTCTime)
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+getCreationTime file = Just . creationTime <$> fileTime file
+#else
+getCreationTime _ = return Nothing
+#endif
+
+{-|
+The 'getCreationTime' operation returns the
+UTC time at which the file or directory was changed.
+The time is only available on Unix and Mac.
+Note that Unix's rename() does not change ctime but
+MacOS's rename() does.
+-}
+getChangeTime :: FilePath -> IO (Maybe UTCTime)
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+getChangeTime _ = return Nothing
+#else
+getChangeTime file = Just . epochTimeToUTCTime . statusChangeTime <$> getFileStatus file
+#endif
+
+{-|
+The 'getModificationTime' operation returns the
+UTC time at which the file or directory was last modified.
+
+The operation may fail with:
+
+* 'isPermissionError' if the user is not permitted to access
+  the modification time; or
+
+* 'isDoesNotExistError' if the file or directory does not exist.
+
+-}
+getModificationTime :: FilePath -> IO UTCTime
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+getModificationTime file = writeTime <$> fileTime file
+#else
+getModificationTime file = epochTimeToUTCTime . modificationTime <$> getFileStatus file
+#endif
+
+{-
+  http://msdn.microsoft.com/en-us/library/ms724290%28VS.85%29.aspx
+  The NTFS file system delays updates to the last access time for
+  a file by up to 1 hour after the last access.
+-}
+getAccessTime :: FilePath -> IO UTCTime
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+getAccessTime file = accessTime <$> fileTime file
+#else
+getAccessTime file = epochTimeToUTCTime . accessTime <$> getFileStatus file
+#endif
+
+----------------------------------------------------------------
+
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+creationTime :: (UTCTime,UTCTime,UTCTime) -> UTCTime
+creationTime (ctime,_,_) = ctime
+
+accessTime :: (UTCTime,UTCTime,UTCTime) -> UTCTime
+accessTime (_,atime,_) = atime
+
+writeTime :: (UTCTime,UTCTime,UTCTime) -> UTCTime
+writeTime (_,_,wtime) = wtime
+
+fileTime :: FilePath -> IO (UTCTime,UTCTime,UTCTime)
+fileTime file = do
+    fh <- createFile file gENERIC_READ fILE_SHARE_READ Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
+    (ctime,atime,mtime) <- getFileTime fh
+    closeHandle fh
+    return (filetimeToUTCTime ctime
+           ,filetimeToUTCTime atime
+           ,filetimeToUTCTime mtime)
+
+{-
+  http://support.microsoft.com/kb/167296/en-us
+  100 nano seconds since 1 Jan 1601
+  MS: _FILETIME = {DWORD,DWORD} = {Word32,Word32}
+  Haskell: FILETIME == DDWORD == Word64
+-}
+filetimeToUTCTime :: FILETIME -> UTCTime
+filetimeToUTCTime (FILETIME x) = posixSecondsToUTCTime . realToFrac $ (fromIntegral x - 116444736000000000) `div` 10000000
+#else
+epochTimeToUTCTime :: EpochTime -> UTCTime
+epochTimeToUTCTime = posixSecondsToUTCTime . realToFrac
+#endif
+
+----------------------------------------------------------------
+
+hasSubDirectories :: FilePath -> IO (Maybe Bool)
+#ifdef darwin_HOST_OS
+hasSubDirectories _ = return Nothing
+#else
+hasSubDirectories file = do
+  Just n <- getLinkCount file
+  return $ Just (n > 2)
+#endif
+
+----------------------------------------------------------------
+
+getCurrentDirectory :: IO FilePath
+getCurrentDirectory = fixPath <$> D.getCurrentDirectory
+
+getHomeDirectory :: IO FilePath
+getHomeDirectory = fixPath <$> D.getHomeDirectory
+
+getAppUserDataDirectory :: String -> IO FilePath
+getAppUserDataDirectory x = fixPath <$> D.getAppUserDataDirectory x
+
+getUserDocumentsDirectory :: IO FilePath
+getUserDocumentsDirectory = fixPath <$> D.getUserDocumentsDirectory
+
+getTemporaryDirectory :: IO FilePath
+getTemporaryDirectory = fixPath <$> D.getTemporaryDirectory
+
+getHomeDirectory2 :: IO (Maybe FilePath)
+getHomeDirectory2 = (Just . fixPath <$> getEnv "HOME") `catch` \_ -> return Nothing
+
+----------------------------------------------------------------
+
+fixPath :: FilePath -> FilePath
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+fixPath [] = []
+fixPath (c:cs)
+ | c == '\\' = '/' : fixPath cs
+ | otherwise = c   : fixPath cs
+#else
+fixPath = id
+#endif
