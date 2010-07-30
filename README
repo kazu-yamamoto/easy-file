@@ -9,6 +9,9 @@ The current Haskell modules have following shortcomings:
 - getModificationTime returns obsoleted type, ClockTime. It should
   return modern type, UTCTime, I believe.
 
+- Some file functions are missing. A function to tell the link counter,
+  for instance.
+
 - Path separator is not unified. Even though Windows accepts '/' as a
   file separator, getCurrentDirectory in System.Directory returns '\\'
   as a file separator. So, we need to specify regular expression like
