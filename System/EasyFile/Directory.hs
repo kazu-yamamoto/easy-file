@@ -16,6 +16,7 @@ import System.Directory (
   , removeFile
   , renameFile
   , copyFile
+  , canonicalizePath
   , doesFileExist
   , doesDirectoryExist
   , Permissions(..)

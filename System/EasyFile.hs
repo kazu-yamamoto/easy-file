@@ -59,7 +59,7 @@ module System.EasyFile (
   , removeFile
   , renameFile
   , copyFile
---   , canonicalizePath -- xxx
+  , canonicalizePath
 --   , makeRelativeToCurrentDirectory -- xxx
 --   , findExecutable -- xxx
   -- * Existence tests
