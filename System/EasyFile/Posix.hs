@@ -2,8 +2,16 @@
 
 module System.EasyFile.Posix (
     module System.EasyFile.Posix
-  , module System.Directory
-  , module System.FilePath.Posix
+  , getCurrentDirectory
+  , getHomeDirectory
+  , getAppUserDataDirectory
+  , getUserDocumentsDirectory
+  , getTemporaryDirectory
+  , canonicalizePath
+  , isRelative
+  , isAbsolute
+  , isValid
+  , makeValid
   ) where
 
 ----------------------------------------------------------------

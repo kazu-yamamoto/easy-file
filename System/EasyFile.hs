@@ -10,8 +10,64 @@ module System.EasyFile (
 #else
     module System.EasyFile.Posix
 #endif
-  , module System.Directory
-  , module System.FilePath.Posix
+  , FilePath
+  , pathSeparator
+  , pathSeparators
+  , isPathSeparator
+  , searchPathSeparator
+  , isSearchPathSeparator
+  , extSeparator
+  , isExtSeparator
+  , splitSearchPath
+  , getSearchPath
+  , splitExtension
+  , takeExtension
+  , replaceExtension
+  , dropExtension
+  , addExtension
+  , hasExtension
+  , (<.>)
+  , splitExtensions
+  , dropExtensions
+  , takeExtensions
+  , splitDrive
+  , joinDrive
+  , takeDrive
+  , hasDrive
+  , dropDrive
+  , isDrive
+  , splitFileName
+  , takeFileName
+  , replaceFileName
+  , dropFileName
+  , takeBaseName
+  , replaceBaseName
+  , takeDirectory
+  , replaceDirectory
+  , combine
+  , (</>)
+  , splitPath
+  , joinPath
+  , splitDirectories
+  , hasTrailingPathSeparator
+  , addTrailingPathSeparator
+  , dropTrailingPathSeparator
+  , createDirectory
+  , createDirectoryIfMissing
+  , removeDirectory
+  , removeDirectoryRecursive
+  , renameDirectory
+  , getDirectoryContents
+  , setCurrentDirectory
+  , removeFile
+  , renameFile
+  , copyFile
+  , doesFileExist
+  , doesDirectoryExist
+  , Permissions(..)
+  , getPermissions
+  , setPermissions
+  , copyPermissions
   ) where
 
 ----------------------------------------------------------------
