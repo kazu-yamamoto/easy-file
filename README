@@ -12,7 +12,7 @@ The current Haskell modules have following shortcomings:
 - Path separator is not unified. Even though Windows accepts '/' as a
   file separator, getCurrentDirectory in System.Directory returns '\\'
   as a file separator. So, we need to specify regular expression like
-  this: "[/\\]foo[/\\]bar[/\\]baz". 
+  this: "[/\\]foo[/\\]bar[/\\]baz".
 
 - getHomeDirectory returns HOMEDRIVE/HOMEPATH instead of the HOME
   environment variable on Windows.
