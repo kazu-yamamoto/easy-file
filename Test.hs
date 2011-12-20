@@ -1,51 +1,43 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, TemplateHaskell #-}
 
 module Test where
 
-import Test.Framework (defaultMain, testGroup, Test)
-import Test.Framework.Providers.HUnit
-import Test.HUnit hiding (Test)
 import System.EasyFile
+import Test.Framework.Providers.HUnit
+import Test.Framework.TH
+import Test.HUnit
 
 ----------------------------------------------------------------
 
-tests :: [Test]
-tests = [
-    testGroup "FilePath" [
-         testCase "</>" test_slash
-       , testCase "isRelative1" test_relative1
-       , testCase "isRelative2" test_relative2
-       , testCase "isRelative3" test_relative3
-       , testCase "isRelative4" test_relative4
-       ]
-    ]
+main :: IO ()
+main = $(defaultMainGenerator)
 
 ----------------------------------------------------------------
 
-test_slash :: Assertion
-test_slash = "foo" </> "bar" @?= "foo/bar"
+case_slash :: Assertion
+case_slash = "foo" </> "bar" @?= "foo/bar"
 
-test_relative1 :: Assertion
-test_relative1 = isRelative "foo" @?= True
+case_relative1 :: Assertion
+case_relative1 = isRelative "foo" @?= True
 
-test_relative2 :: Assertion
-test_relative2 = isRelative "/foo" @?=
+case_relative2 :: Assertion
+case_relative2 = isRelative "/foo" @?=
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
     True
 #else
     False
 #endif
 
-test_relative3 :: Assertion
-test_relative3 = isRelative "c:foo" @?=
+case_relative3 :: Assertion
+case_relative3 = isRelative "c:foo" @?=
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
     True
 #else
     True
 #endif
 
-test_relative4 :: Assertion
-test_relative4 = isRelative "c:/foo" @?=
+case_relative4 :: Assertion
+case_relative4 = isRelative "c:/foo" @?=
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
     False
 #else
@@ -53,6 +45,3 @@ test_relative4 = isRelative "c:/foo" @?=
 #endif
 
 ----------------------------------------------------------------
-
-main :: Assertion
-main = defaultMain tests
