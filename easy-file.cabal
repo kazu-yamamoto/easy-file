@@ -1,5 +1,5 @@
 Name:                   easy-file
-Version:                0.1.0
+Version:                0.1.2
 Author:                 Kazu Yamamoto <kazu@iij.ad.jp>
 Maintainer:             Kazu Yamamoto <kazu@iij.ad.jp>
 License:                BSD3
@@ -10,6 +10,7 @@ Homepage:               http://github.com/kazu-yamamoto/easy-file
 Category:               System
 Cabal-Version:          >= 1.6
 Build-Type:             Simple
+Tested-with:            GHC == 7.6.1
 library
   if impl(ghc >= 6.12)
     GHC-Options:        -Wall -fno-warn-unused-do-bind

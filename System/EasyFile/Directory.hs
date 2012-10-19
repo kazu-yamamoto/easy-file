@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module System.EasyFile.Directory (
     module System.EasyFile.Directory
@@ -34,6 +35,7 @@ import qualified System.Directory as D (
   )
 
 import Control.Applicative
+import qualified Control.Exception as E 
 import System.Environment
 
 ----------------------------------------------------------------
@@ -95,7 +97,8 @@ the @HOME@ environment variable.
 -}
 
 getHomeDirectory2 :: IO (Maybe FilePath)
-getHomeDirectory2 = (Just . fixPath <$> getEnv "HOME") `catch` \_ -> return Nothing
+getHomeDirectory2 = (Just . fixPath <$> getEnv "HOME") `E.catch` 
+                    \(_ :: E.IOException) -> return Nothing
 
 {- | Returns the pathname of a directory in which application-specific
 data for the current user can be stored.  The result of
