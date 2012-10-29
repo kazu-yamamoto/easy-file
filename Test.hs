@@ -4,7 +4,7 @@ module Test where
 
 import System.EasyFile
 import Test.Framework.Providers.HUnit
-import Test.Framework.TH
+import Test.Framework.TH.Prime
 import Test.HUnit
 
 ----------------------------------------------------------------
