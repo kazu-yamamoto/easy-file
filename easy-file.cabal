@@ -10,7 +10,6 @@ Homepage:               http://github.com/kazu-yamamoto/easy-file
 Category:               System
 Cabal-Version:          >= 1.6
 Build-Type:             Simple
-Tested-with:            GHC == 7.6.1
 
 Library
   GHC-Options:          -Wall
