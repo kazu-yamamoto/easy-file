@@ -7,7 +7,9 @@ module System.EasyFile.Missing where
 import Control.Applicative
 import Data.Time
 import Data.Time.Clock.POSIX
+import Data.Word (Word64)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+import Control.Exception
 import System.Win32.File
 import System.Win32.Time
 #else
@@ -148,4 +150,16 @@ filetimeToUTCTime (FILETIME x) = posixSecondsToUTCTime . realToFrac $ tm
 #else
 epochTimeToUTCTime :: EpochTime -> UTCTime
 epochTimeToUTCTime = posixSecondsToUTCTime . realToFrac
+#endif
+
+-- | Getting the size of the file.
+getFileSize :: FilePath -> IO Word64
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+getFileSize file = bracket setup teardown body
+  where
+    setup = createFile file gENERIC_READ fILE_SHARE_READ Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
+    teardown = closeHandle
+    body fh = fromIntegral . bhfiSize <$> getFileInformationByHandle fh
+#else
+getFileSize file = fromIntegral . fileSize <$> getFileStatus file
 #endif
