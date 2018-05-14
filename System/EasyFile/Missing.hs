@@ -12,6 +12,7 @@ import Data.Word (Word64)
 import Control.Exception
 import System.Win32.File
 import System.Win32.Time
+import System.Win32.Types (HANDLE)
 #else
 import System.Posix.Files
 import System.Posix.Types
@@ -118,6 +119,16 @@ getAccessTime file = epochTimeToUTCTime . accessTime <$> getFileStatus file
 ----------------------------------------------------------------
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+-- Open a file or directory for getting the file metadata.
+withFileForInfo :: FilePath -> (HANDLE -> IO a) -> IO a
+withFileForInfo file = bracket setup teardown
+  where
+    setup = createFile file 0 fILE_SHARE_READ Nothing
+                       oPEN_EXISTING fILE_FLAG_BACKUP_SEMANTICS Nothing
+    teardown = closeHandle
+#endif
+
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 creationTime :: (UTCTime,UTCTime,UTCTime) -> UTCTime
 creationTime (ctime,_,_) = ctime
 
@@ -128,13 +139,11 @@ writeTime :: (UTCTime,UTCTime,UTCTime) -> UTCTime
 writeTime (_,_,wtime) = wtime
 
 fileTime :: FilePath -> IO (UTCTime,UTCTime,UTCTime)
-fileTime file = do
-    fh <- createFile file gENERIC_READ fILE_SHARE_READ Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
-    (ctime,atime,mtime) <- getFileTime fh
-    closeHandle fh
-    return (filetimeToUTCTime ctime
-           ,filetimeToUTCTime atime
-           ,filetimeToUTCTime mtime)
+fileTime file = withFileForInfo file $ \fh -> do
+  (ctime,atime,mtime) <- getFileTime fh
+  return (filetimeToUTCTime ctime
+         ,filetimeToUTCTime atime
+         ,filetimeToUTCTime mtime)
 
 {-
   http://support.microsoft.com/kb/167296/en-us
@@ -155,11 +164,8 @@ epochTimeToUTCTime = posixSecondsToUTCTime . realToFrac
 -- | Getting the size of the file.
 getFileSize :: FilePath -> IO Word64
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-getFileSize file = bracket setup teardown body
-  where
-    setup = createFile file gENERIC_READ fILE_SHARE_READ Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
-    teardown = closeHandle
-    body fh = fromIntegral . bhfiSize <$> getFileInformationByHandle fh
+getFileSize file = withFileForInfo file $ \fh ->
+  fromIntegral . bhfiSize <$> getFileInformationByHandle fh
 #else
 getFileSize file = fromIntegral . fileSize <$> getFileStatus file
 #endif
