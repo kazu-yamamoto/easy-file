@@ -4,7 +4,6 @@ module System.EasyFile.Missing where
 
 ----------------------------------------------------------------
 
-import Control.Applicative
 import Data.Time
 import Data.Time.Clock.POSIX
 import Data.Word (Word64)
