@@ -34,7 +34,6 @@ import qualified System.Directory as D (
   , copyPermissions
   )
 
-import Control.Applicative
 import qualified Control.Exception as E 
 import System.Environment
 
