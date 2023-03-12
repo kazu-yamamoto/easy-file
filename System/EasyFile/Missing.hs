@@ -4,7 +4,9 @@ module System.EasyFile.Missing where
 
 ----------------------------------------------------------------
 
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
+#endif
 import Data.Time
 import Data.Time.Clock.POSIX
 import Data.Word (Word64)

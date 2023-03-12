@@ -34,7 +34,9 @@ import qualified System.Directory as D (
   , copyPermissions
   )
 
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
+#endif
 import qualified Control.Exception as E
 import System.Environment
 
