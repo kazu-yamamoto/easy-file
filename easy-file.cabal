@@ -32,6 +32,18 @@ Library
   if impl(ghc >= 8)
     GHC-Options:        -Wcompat
 
+
+Test-Suite test
+  Type:                 exitcode-stdio-1.0
+  Hs-Source-Dirs:       test
+  Main-Is:              Test.hs
+  Build-Depends:
+      base
+    , easy-file
+    , tasty
+    , tasty-hunit
+  Default-Language:     Haskell2010
+
 Source-Repository head
   Type:                 git
   Location:             https://github.com/kazu-yamamoto/easy-file.git
