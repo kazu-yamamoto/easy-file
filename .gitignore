@@ -1,1 +1,6 @@
-dist/
+/dist/
+/dist-newstyle/
+*.dyn_hi
+*.dyn_o
+*.hi
+*.o

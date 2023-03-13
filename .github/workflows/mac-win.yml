@@ -1,0 +1,41 @@
+name: CI-Mac-Win
+on:
+  push:
+    branches:
+      - master
+      - ci-*
+  pull_request:
+    branches:
+      - master
+      - ci-*
+
+jobs:
+  mac-win:
+    name: Build/test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+
+    strategy:
+      matrix:
+        os: [macos-latest,windows-latest]
+
+    steps:
+
+    - uses: actions/checkout@v3
+
+    - name: Info about Haskell versions
+      run: |
+        ghc --version
+        cabal --version
+
+    - name: Update cabal package repository
+      run:  cabal update
+
+    - name: Build
+      run:  cabal build
+
+    - name: Build tests
+      run:  cabal build --enable-tests
+
+    - name: Test
+      run:  cabal test --enable-tests

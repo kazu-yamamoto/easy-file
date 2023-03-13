@@ -34,8 +34,10 @@ import qualified System.Directory as D (
   , copyPermissions
   )
 
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
-import qualified Control.Exception as E 
+#endif
+import qualified Control.Exception as E
 import System.Environment
 
 ----------------------------------------------------------------
@@ -97,7 +99,7 @@ the @HOME@ environment variable.
 -}
 
 getHomeDirectory2 :: IO (Maybe FilePath)
-getHomeDirectory2 = (Just . fixPath <$> getEnv "HOME") `E.catch` 
+getHomeDirectory2 = (Just . fixPath <$> getEnv "HOME") `E.catch`
                     \(_ :: E.IOException) -> return Nothing
 
 {- | Returns the pathname of a directory in which application-specific
