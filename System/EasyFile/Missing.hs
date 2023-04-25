@@ -16,7 +16,7 @@ import System.Win32.File
 import System.Win32.Time
 import System.Win32.Types (HANDLE)
 #else
-import System.Posix.Files
+import System.Posix.Files as P
 import System.Posix.Types
 #endif
 
@@ -170,4 +170,15 @@ getFileSize file = withFileForInfo file $ \fh ->
   fromIntegral . bhfiSize <$> getFileInformationByHandle fh
 #else
 getFileSize file = fromIntegral . fileSize <$> getFileStatus file
+#endif
+
+-- | Setting the size of the file.
+setFileSize :: FilePath -> Word64 -> IO ()
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+setFileSize file siz = do
+    hdl <- createFile file gENERIC_WRITE fILE_SHARE_NONE Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
+    _ <- setFilePointerEx hdl (fromIntegral siz) fILE_CURRENT
+    setEndOfFile hdl
+#else
+setFileSize file siz = P.setFileSize file $ fromIntegral siz
 #endif

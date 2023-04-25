@@ -76,6 +76,7 @@ module System.EasyFile (
   , getAccessTime
   -- * Size
   , getFileSize
+  , setFileSize
   -- * File\/directory information
   , isSymlink
   , getLinkCount
