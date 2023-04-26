@@ -1,5 +1,6 @@
-This is a Haskell package of cross-platform file handling for
-Unix/Mac/Windows.
+# Easy file handling for Haskell
+
+This is a Haskell package of cross-platform file handling for Unix/Mac/Windows.
 
 The current Haskell modules have following shortcomings:
 
