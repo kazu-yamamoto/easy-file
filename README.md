@@ -1,3 +1,5 @@
+![GitHub Actions status](https://github.com/kazu-yamamoto/easy-file/workflows/Haskell%20CI/badge.svg)
+
 # Easy file handling for Haskell
 
 This is a Haskell package of cross-platform file handling for Unix/Mac/Windows.
