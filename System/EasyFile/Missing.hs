@@ -172,13 +172,18 @@ getFileSize file = withFileForInfo file $ \fh ->
 getFileSize file = fromIntegral . fileSize <$> getFileStatus file
 #endif
 
+#if (defined(mingw32_HOST_OS) || defined(__MINGW32__))
+-- Earlier versions don't provide `setFilePointerEx`: https://github.com/kazu-yamamoto/easy-file/issues/9
+#if MIN_VERSION_Win32(2, 6, 2)
 -- | Setting the size of the file.
 setFileSize :: FilePath -> Word64 -> IO ()
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 setFileSize file siz = do
     hdl <- createFile file gENERIC_WRITE fILE_SHARE_NONE Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
     _ <- setFilePointerEx hdl (fromIntegral siz) fILE_CURRENT
     setEndOfFile hdl
+#endif
 #else
+-- | Setting the size of the file.
+setFileSize :: FilePath -> Word64 -> IO ()
 setFileSize file siz = P.setFileSize file $ fromIntegral siz
 #endif
