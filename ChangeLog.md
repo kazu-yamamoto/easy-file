@@ -1,3 +1,8 @@
+## v0.2.5
+
+- setFileSizer can be built but raises an error for GHC < 8.10.6.
+  [#10](https://github.com/kazu-yamamoto/easy-file/pull/10)
+
 ## v0.2.4
 
 - Providing `setFileSize`.
