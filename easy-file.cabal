@@ -1,6 +1,6 @@
 Cabal-Version:          >= 1.10
 Name:                   easy-file
-Version:                0.2.4
+Version:                0.2.5
 Author:                 Kazu Yamamoto <kazu@iij.ad.jp>
 Maintainer:             Kazu Yamamoto <kazu@iij.ad.jp>
 License:                BSD3
