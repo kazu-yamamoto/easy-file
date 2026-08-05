@@ -22,10 +22,9 @@ import System.Posix.Types
 
 ----------------------------------------------------------------
 
-{-|
-  This function tells whether or not a file\/directory is symbolic
-  link.
--}
+-- |
+--   This function tells whether or not a file\/directory is symbolic
+--   link.
 isSymlink :: FilePath -> IO Bool
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 isSymlink _ = return False
@@ -33,9 +32,8 @@ isSymlink _ = return False
 isSymlink file = isSymbolicLink <$> getSymbolicLinkStatus file
 #endif
 
-{-|
-  This function returns the link counter of a file\/directory.
--}
+-- |
+--   This function returns the link counter of a file\/directory.
 getLinkCount :: FilePath -> IO (Maybe Int)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getLinkCount _ = return Nothing
@@ -43,9 +41,8 @@ getLinkCount _ = return Nothing
 getLinkCount file = Just . fromIntegral . linkCount <$> getFileStatus file
 #endif
 
-{-|
-  This function returns whether or not a directory has sub-directories.
--}
+-- |
+--   This function returns whether or not a directory has sub-directories.
 hasSubDirectories :: FilePath -> IO (Maybe Bool)
 #ifdef darwin_HOST_OS
 hasSubDirectories _ = return Nothing
@@ -57,11 +54,10 @@ hasSubDirectories file = do
 
 ----------------------------------------------------------------
 
-{-|
-The 'getCreationTime' operation returns the
-UTC time at which the file or directory was created.
-The time is only available on Windows.
--}
+-- |
+-- The 'getCreationTime' operation returns the
+-- UTC time at which the file or directory was created.
+-- The time is only available on Windows.
 getCreationTime :: FilePath -> IO (Maybe UTCTime)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getCreationTime file = Just . creationTime <$> fileTime file
@@ -69,13 +65,12 @@ getCreationTime file = Just . creationTime <$> fileTime file
 getCreationTime _ = return Nothing
 #endif
 
-{-|
-The 'getChangeTime' operation returns the
-UTC time at which the file or directory was changed.
-The time is only available on Unix and Mac.
-Note that Unix's rename() does not change ctime but
-MacOS's rename() does.
--}
+-- |
+-- The 'getChangeTime' operation returns the
+-- UTC time at which the file or directory was changed.
+-- The time is only available on Unix and Mac.
+-- Note that Unix's rename() does not change ctime but
+-- MacOS's rename() does.
 getChangeTime :: FilePath -> IO (Maybe UTCTime)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getChangeTime _ = return Nothing
@@ -83,18 +78,16 @@ getChangeTime _ = return Nothing
 getChangeTime file = Just . epochTimeToUTCTime . statusChangeTime <$> getFileStatus file
 #endif
 
-{-|
-The 'getModificationTime' operation returns the
-UTC time at which the file or directory was last modified.
-
-The operation may fail with:
-
-* 'isPermissionError' if the user is not permitted to access
-  the modification time; or
-
-* 'isDoesNotExistError' if the file or directory does not exist.
-
--}
+-- |
+-- The 'getModificationTime' operation returns the
+-- UTC time at which the file or directory was last modified.
+--
+-- The operation may fail with:
+--
+-- * 'isPermissionError' if the user is not permitted to access
+--   the modification time; or
+--
+-- * 'isDoesNotExistError' if the file or directory does not exist.
 getModificationTime :: FilePath -> IO UTCTime
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getModificationTime file = writeTime <$> fileTime file
@@ -107,10 +100,10 @@ getModificationTime file = epochTimeToUTCTime . modificationTime <$> getFileStat
   The NTFS file system delays updates to the last access time for
   a file by up to 1 hour after the last access.
 -}
-{-|
-The 'getModificationTime' operation returns the
-UTC time at which the file or directory was last accessed.
--}
+
+-- |
+-- The 'getModificationTime' operation returns the
+-- UTC time at which the file or directory was last accessed.
 getAccessTime :: FilePath -> IO UTCTime
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getAccessTime file = accessTime <$> fileTime file

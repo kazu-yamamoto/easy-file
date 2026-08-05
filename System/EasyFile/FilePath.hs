@@ -10,33 +10,53 @@
 module System.EasyFile.FilePath (
     -- * Separator predicates
     FilePath,
-    pathSeparator, pathSeparators, isPathSeparator,
-{- xxx
-    searchPathSeparator, isSearchPathSeparator,
--}
-    extSeparator, isExtSeparator,
-
-{- xxx
-    -- * Path methods (environment $PATH)
-    splitSearchPath, getSearchPath,
--}
+    pathSeparator,
+    pathSeparators,
+    isPathSeparator,
+    {- xxx
+        searchPathSeparator, isSearchPathSeparator,
+    -}
+    extSeparator,
+    isExtSeparator,
+    {- xxx
+        -- * Path methods (environment $PATH)
+        splitSearchPath, getSearchPath,
+    -}
 
     -- * Extension methods
     splitExtension,
-    takeExtension, replaceExtension, dropExtension, addExtension, hasExtension, (<.>),
-    splitExtensions, dropExtensions, takeExtensions,
+    takeExtension,
+    replaceExtension,
+    dropExtension,
+    addExtension,
+    hasExtension,
+    (<.>),
+    splitExtensions,
+    dropExtensions,
+    takeExtensions,
 
     -- * Drive methods
-    splitDrive, joinDrive,
-    takeDrive, hasDrive, dropDrive, isDrive,
+    splitDrive,
+    joinDrive,
+    takeDrive,
+    hasDrive,
+    dropDrive,
+    isDrive,
 
     -- * Operations on a FilePath, as a list of directories
     splitFileName,
-    takeFileName, replaceFileName, dropFileName,
-    takeBaseName, replaceBaseName,
-    takeDirectory, replaceDirectory,
-    combine, (</>),
-    splitPath, joinPath, splitDirectories,
+    takeFileName,
+    replaceFileName,
+    dropFileName,
+    takeBaseName,
+    replaceBaseName,
+    takeDirectory,
+    replaceDirectory,
+    combine,
+    (</>),
+    splitPath,
+    joinPath,
+    splitDirectories,
 
     -- * Low level FilePath operators
     hasTrailingPathSeparator,
@@ -44,32 +64,28 @@ module System.EasyFile.FilePath (
     dropTrailingPathSeparator,
 
     -- * File name manipulators
-    normalise, equalFilePath,
+    normalise,
+    equalFilePath,
     makeRelative,
-    isRelative, isAbsolute,
-{- xxx
-    isValid, makeValid
--}
+    isRelative,
+    isAbsolute,
 
 #ifdef TESTING
-    , isRelativeDrive
+    isRelativeDrive,
 #endif
+    {- xxx
+        isValid, makeValid
+    -}
+)
+where
 
-    )
-    where
-
-import Data.Char(toLower, toUpper)
-import Data.Maybe(isJust, fromJust)
+import Data.Char (toLower, toUpper)
+import Data.Maybe (fromJust, isJust)
 
 -- import System.Environment(getEnv) -- xxx
 
-
-infixr 7  <.>
-infixr 5  </>
-
-
-
-
+infixr 7 <.>
+infixr 5 </>
 
 ---------------------------------------------------------------------
 -- Platform Abstraction Methods (private)
@@ -111,7 +127,6 @@ pathSeparators = if isWindows then "\\/" else "/"
 isPathSeparator :: Char -> Bool
 isPathSeparator = (`elem` pathSeparators)
 
-
 {- xxx
 -- | The character that is used to separate the entries in the $PATH environment variable.
 --
@@ -139,9 +154,6 @@ extSeparator = '.'
 isExtSeparator :: Char -> Bool
 isExtSeparator = (== extSeparator)
 
-
-
-
 {- xxx
 ---------------------------------------------------------------------
 -- Path methods (environment $PATH)
@@ -165,7 +177,6 @@ splitSearchPath = f
     g "" = ["." | isPosix]
     g x = [x]
 
-
 -- | Get a list of filepaths in the $PATH.
 getSearchPath :: IO [FilePath]
 getSearchPath = fmap splitSearchPath (getEnv "PATH")
@@ -187,11 +198,11 @@ getSearchPath = fmap splitSearchPath (getEnv "PATH")
 -- > splitExtension "file/path.txt/" == ("file/path.txt/","")
 splitExtension :: FilePath -> (String, String)
 splitExtension x = case d of
-                       "" -> (x,"")
-                       (y:ys) -> (a ++ reverse ys, y : reverse c)
-    where
-        (a,b) = splitFileName x
-        (c,d) = break isExtSeparator $ reverse b
+    "" -> (x, "")
+    (y : ys) -> (a ++ reverse ys, y : reverse c)
+  where
+    (a, b) = splitFileName x
+    (c, d) = break isExtSeparator $ reverse b
 
 -- | Get the extension of a file, returns @\"\"@ for no extension, @.ext@ otherwise.
 --
@@ -232,12 +243,14 @@ dropExtension = fst . splitExtension
 -- > Windows: addExtension "\\\\share" ".txt" == "\\\\share\\.txt"
 addExtension :: FilePath -> String -> FilePath
 addExtension file "" = file
-addExtension file xs@(x:_) = joinDrive a res
-    where
-        res = if isExtSeparator x then b ++ xs
-              else b ++ [extSeparator] ++ xs
+addExtension file xs@(x : _) = joinDrive a res
+  where
+    res =
+        if isExtSeparator x
+            then b ++ xs
+            else b ++ [extSeparator] ++ xs
 
-        (a,b) = splitDrive file
+    (a, b) = splitDrive file
 
 -- | Does the given filename have an extension?
 --
@@ -245,15 +258,14 @@ addExtension file xs@(x:_) = joinDrive a res
 hasExtension :: FilePath -> Bool
 hasExtension = any isExtSeparator . takeFileName
 
-
 -- | Split on all extensions
 --
 -- > splitExtensions "file.tar.gz" == ("file",".tar.gz")
 splitExtensions :: FilePath -> (FilePath, String)
 splitExtensions x = (a ++ c, d)
-    where
-        (a,b) = splitFileName x
-        (c,d) = break isExtSeparator b
+  where
+    (a, b) = splitFileName x
+    (c, d) = break isExtSeparator b
 
 -- | Drop all extensions
 --
@@ -267,8 +279,6 @@ dropExtensions = fst . splitExtensions
 takeExtensions :: FilePath -> String
 takeExtensions = snd . splitExtensions
 
-
-
 ---------------------------------------------------------------------
 -- Drive methods
 
@@ -276,7 +286,6 @@ takeExtensions = snd . splitExtensions
 -- only a-z and A-Z are letters, not isAlpha which is more unicodey
 isLetter :: Char -> Bool
 isLetter x = (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z')
-
 
 -- | Split a path into a drive and a path.
 --   On Unix, \/ is a Drive.
@@ -296,56 +305,58 @@ isLetter x = (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z')
 -- > Posix:   splitDrive "file" == ("","file")
 splitDrive :: FilePath -> (FilePath, FilePath)
 splitDrive x | isPosix = span (== '/') x
-
 splitDrive x | isJust y = fromJust y
-    where y = readDriveLetter x
-
+  where
+    y = readDriveLetter x
 splitDrive x | isJust y = fromJust y
-    where y = readDriveUNC x
-
+  where
+    y = readDriveUNC x
 splitDrive x | isJust y = fromJust y
-    where y = readDriveShare x
-
-splitDrive x = ("",x)
+  where
+    y = readDriveShare x
+splitDrive x = ("", x)
 
 addSlash :: FilePath -> FilePath -> (FilePath, FilePath)
-addSlash a xs = (a++c,d)
-    where (c,d) = span isPathSeparator xs
+addSlash a xs = (a ++ c, d)
+  where
+    (c, d) = span isPathSeparator xs
 
 -- http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/fs/naming_a_file.asp
 -- "\\?\D:\<path>" or "\\?\UNC\<server>\<share>"
 -- a is "\\?\"
 readDriveUNC :: FilePath -> Maybe (FilePath, FilePath)
-readDriveUNC (s1:s2:'?':s3:xs) | all isPathSeparator [s1,s2,s3] =
+readDriveUNC (s1 : s2 : '?' : s3 : xs) | all isPathSeparator [s1, s2, s3] =
     case map toUpper xs of
-        ('U':'N':'C':s4:_) | isPathSeparator s4 ->
-            let (a,b) = readDriveShareName (drop 4 xs)
-            in Just (s1:s2:'?':s3:take 4 xs ++ a, b)
+        ('U' : 'N' : 'C' : s4 : _)
+            | isPathSeparator s4 ->
+                let (a, b) = readDriveShareName (drop 4 xs)
+                 in Just (s1 : s2 : '?' : s3 : take 4 xs ++ a, b)
         _ -> case readDriveLetter xs of
-                 Just (a,b) -> Just (s1:s2:'?':s3:a,b)
-                 Nothing -> Nothing
+            Just (a, b) -> Just (s1 : s2 : '?' : s3 : a, b)
+            Nothing -> Nothing
 readDriveUNC _ = Nothing
 
 {- c:\ -}
 readDriveLetter :: String -> Maybe (FilePath, FilePath)
-readDriveLetter (x:':':y:xs) | isLetter x && isPathSeparator y = Just $ addSlash [x,':'] (y:xs)
-readDriveLetter (x:':':xs) | isLetter x = Just ([x,':'], xs)
+readDriveLetter (x : ':' : y : xs) | isLetter x && isPathSeparator y = Just $ addSlash [x, ':'] (y : xs)
+readDriveLetter (x : ':' : xs) | isLetter x = Just ([x, ':'], xs)
 readDriveLetter _ = Nothing
 
 {- \\sharename\ -}
 readDriveShare :: String -> Maybe (FilePath, FilePath)
-readDriveShare (s1:s2:xs) | isPathSeparator s1 && isPathSeparator s2 =
-        Just (s1:s2:a,b)
-    where (a,b) = readDriveShareName xs
+readDriveShare (s1 : s2 : xs)
+    | isPathSeparator s1 && isPathSeparator s2 =
+        Just (s1 : s2 : a, b)
+  where
+    (a, b) = readDriveShareName xs
 readDriveShare _ = Nothing
 
 {- assume you have already seen \\ -}
 {- share\bob -> "share","\","bob" -}
 readDriveShareName :: String -> (FilePath, FilePath)
 readDriveShareName name = addSlash a b
-    where (a,b) = break isPathSeparator name
-
-
+  where
+    (a, b) = break isPathSeparator name
 
 -- | Join a drive and the rest of the path.
 --
@@ -355,13 +366,14 @@ readDriveShareName name = addSlash a b
 -- > Windows: joinDrive "\\\\share" "foo" == "\\\\share/foo" -- xxx
 -- > Windows: joinDrive "/:" "foo" == "/:/foo" -- xxx
 joinDrive :: FilePath -> FilePath -> FilePath
-joinDrive a b | isPosix = a ++ b
-              | null a = b
-              | null b = a
-              | isPathSeparator (last a) = a ++ b
-              | otherwise = case a of
-                                [a1,':'] | isLetter a1 -> a ++ b
-                                _ -> a ++ [pathSeparator] ++ b
+joinDrive a b
+    | isPosix = a ++ b
+    | null a = b
+    | null b = a
+    | isPathSeparator (last a) = a ++ b
+    | otherwise = case a of
+        [a1, ':'] | isLetter a1 -> a ++ b
+        _ -> a ++ [pathSeparator] ++ b
 
 -- | Get the drive from a filepath.
 --
@@ -381,11 +393,9 @@ dropDrive = snd . splitDrive
 hasDrive :: FilePath -> Bool
 hasDrive = not . null . takeDrive
 
-
 -- | Is an element a drive
 isDrive :: FilePath -> Bool
 isDrive = null . dropDrive
-
 
 ---------------------------------------------------------------------
 -- Operations on a filepath, as a list of directories
@@ -401,10 +411,9 @@ isDrive = null . dropDrive
 -- > Windows: splitFileName "c:" == ("c:","")
 splitFileName :: FilePath -> (String, String)
 splitFileName x = (c ++ reverse b, reverse a)
-    where
-        (a,b) = break isPathSeparator $ reverse d
-        (c,d) = splitDrive x
-
+  where
+    (a, b) = break isPathSeparator $ reverse d
+    (c, d) = splitDrive x
 
 -- | Set the filename.
 --
@@ -417,7 +426,6 @@ replaceFileName x y = dropFileName x </> y
 -- > dropFileName x == fst (splitFileName x)
 dropFileName :: FilePath -> FilePath
 dropFileName = fst . splitFileName
-
 
 -- | Get the file name.
 --
@@ -449,9 +457,9 @@ takeBaseName = dropExtension . takeFileName
 -- > replaceBaseName x (takeBaseName x) == x
 replaceBaseName :: FilePath -> String -> FilePath
 replaceBaseName pth nam = combineAlways a (nam <.> ext)
-    where
-        (a,b) = splitFileName pth
-        ext = takeExtension b
+  where
+    (a, b) = splitFileName pth
+    ext = takeExtension b
 
 -- | Is an item either a directory or the last character a path separator?
 --
@@ -461,7 +469,6 @@ hasTrailingPathSeparator :: FilePath -> Bool
 hasTrailingPathSeparator "" = False
 hasTrailingPathSeparator x = isPathSeparator (last x)
 
-
 -- | Add a trailing file path separator if one is not already present.
 --
 -- > hasTrailingPathSeparator (addTrailingPathSeparator x)
@@ -469,7 +476,6 @@ hasTrailingPathSeparator x = isPathSeparator (last x)
 -- > addTrailingPathSeparator "test/rest" == "test/rest/"
 addTrailingPathSeparator :: FilePath -> FilePath
 addTrailingPathSeparator x = if hasTrailingPathSeparator x then x else x ++ [pathSeparator]
-
 
 -- | Remove any trailing path separators
 --
@@ -479,10 +485,10 @@ addTrailingPathSeparator x = if hasTrailingPathSeparator x then x else x ++ [pat
 dropTrailingPathSeparator :: FilePath -> FilePath
 dropTrailingPathSeparator x =
     if hasTrailingPathSeparator x && not (isDrive x)
-    then let x' = reverse $ dropWhile isPathSeparator $ reverse x
-         in if null x' then [pathSeparator] else x'
-    else x
-
+        then
+            let x' = reverse $ dropWhile isPathSeparator $ reverse x
+             in if null x' then [pathSeparator] else x'
+        else x
 
 -- | Get the directory name, move up one level.
 --
@@ -494,12 +500,16 @@ dropTrailingPathSeparator x =
 -- > Windows:  takeDirectory "foo\\bar\\\\" == "foo\\bar" -- xxx
 -- > Windows:  takeDirectory "C:/" == "C:/"
 takeDirectory :: FilePath -> FilePath
-takeDirectory x = if isDrive file then file
-                  else if null res && not (null file) then file
-                  else res
-    where
-        res = reverse $ dropWhile isPathSeparator $ reverse file
-        file = dropFileName x
+takeDirectory x =
+    if isDrive file
+        then file
+        else
+            if null res && not (null file)
+                then file
+                else res
+  where
+    res = reverse $ dropWhile isPathSeparator $ reverse file
+    file = dropFileName x
 
 -- | Set the directory, keeping the filename the same.
 --
@@ -507,29 +517,28 @@ takeDirectory x = if isDrive file then file
 replaceDirectory :: FilePath -> String -> FilePath
 replaceDirectory x dir = combineAlways dir (takeFileName x)
 
-
 -- | Combine two paths, if the second path 'isAbsolute', then it returns the second.
 --
 -- > Valid x => combine (takeDirectory x) (takeFileName x) `equalFilePath` x
 -- > combine "/" "test" == "/test"
 -- > combine "home" "bob" == "home/bob"
 combine :: FilePath -> FilePath -> FilePath
-combine a b | hasDrive b || (not (null b) && isPathSeparator (head b)) = b
-            | otherwise = combineAlways a b
+combine a b
+    | hasDrive b || (not (null b) && isPathSeparator (head b)) = b
+    | otherwise = combineAlways a b
 
 -- | Combine two paths, assuming rhs is NOT absolute.
 combineAlways :: FilePath -> FilePath -> FilePath
-combineAlways a b | null a = b
-                  | null b = a
-                  | isPathSeparator (last a) = a ++ b
-                  | isDrive a = joinDrive a b
-                  | otherwise = a ++ [pathSeparator] ++ b
-
+combineAlways a b
+    | null a = b
+    | null b = a
+    | isPathSeparator (last a) = a ++ b
+    | isDrive a = joinDrive a b
+    | otherwise = a ++ [pathSeparator] ++ b
 
 -- | A nice alias for 'combine'.
 (</>) :: FilePath -> FilePath -> FilePath
 (</>) = combine
-
 
 -- | Split a path by the directory separator.
 --
@@ -541,14 +550,14 @@ combineAlways a b | null a = b
 -- > Posix:   splitPath "/file/test" == ["/","file/","test"]
 splitPath :: FilePath -> [FilePath]
 splitPath x = [drive | drive /= ""] ++ f path
-    where
-        (drive,path) = splitDrive x
+  where
+    (drive, path) = splitDrive x
 
-        f "" = []
-        f y = (a++c) : f d
-            where
-                (a,b) = break isPathSeparator y
-                (c,d) = break (not . isPathSeparator) b
+    f "" = []
+    f y = (a ++ c) : f d
+      where
+        (a, b) = break isPathSeparator y
+        (c, d) = break (not . isPathSeparator) b
 
 -- | Just as 'splitPath', but don't add the trailing slashes to each element.
 --
@@ -558,15 +567,16 @@ splitPath x = [drive | drive /= ""] ++ f path
 -- > splitDirectories "" == []
 splitDirectories :: FilePath -> [FilePath]
 splitDirectories path =
-        if hasDrive path then head pathComponents : f (tail pathComponents)
+    if hasDrive path
+        then head pathComponents : f (tail pathComponents)
         else f pathComponents
-    where
-        pathComponents = splitPath path
+  where
+    pathComponents = splitPath path
 
-        f xs = map g xs
-        g x = if null res then x else res
-            where res = takeWhile (not . isPathSeparator) x
-
+    f xs = map g xs
+    g x = if null res then x else res
+      where
+        res = takeWhile (not . isPathSeparator) x
 
 -- | Join path elements back together.
 --
@@ -577,11 +587,6 @@ splitDirectories path =
 -- Note that this definition on c:\\c:\\, join then split will give c:\\.
 joinPath :: [FilePath] -> FilePath
 joinPath x = foldr combine "" x
-
-
-
-
-
 
 ---------------------------------------------------------------------
 -- File name manipulators
@@ -599,13 +604,14 @@ joinPath x = foldr combine "" x
 -- > Windows: equalFilePath "foo" "FOO"
 equalFilePath :: FilePath -> FilePath -> Bool
 equalFilePath a b = f a == f b
-    where
-        f x | isWindows = dropTrailSlash $ map toLower $ normalise x
-            | otherwise = dropTrailSlash $ normalise x
+  where
+    f x
+        | isWindows = dropTrailSlash $ map toLower $ normalise x
+        | otherwise = dropTrailSlash $ normalise x
 
-        dropTrailSlash x | length x >= 2 && isPathSeparator (last x) = init x
-                         | otherwise = x
-
+    dropTrailSlash x
+        | length x >= 2 && isPathSeparator (last x) = init x
+        | otherwise = x
 
 -- | Contract a filename, based on a relative path.
 --
@@ -627,24 +633,27 @@ equalFilePath a b = f a == f b
 -- > Posix:   makeRelative "some/path" "some/path/a/b/c" == "a/b/c"
 makeRelative :: FilePath -> FilePath -> FilePath
 makeRelative root path
- | equalFilePath root path = "."
- | takeAbs root /= takeAbs path = path
- | otherwise = f (dropAbs root) (dropAbs path)
-    where
-        f "" y = dropWhile isPathSeparator y
-        f x y = let (x1,x2) = g x
-                    (y1,y2) = g y
-                in if equalFilePath x1 y1 then f x2 y2 else path
+    | equalFilePath root path = "."
+    | takeAbs root /= takeAbs path = path
+    | otherwise = f (dropAbs root) (dropAbs path)
+  where
+    f "" y = dropWhile isPathSeparator y
+    f x y =
+        let (x1, x2) = g x
+            (y1, y2) = g y
+         in if equalFilePath x1 y1 then f x2 y2 else path
 
-        g x = (dropWhile isPathSeparator a, dropWhile isPathSeparator b)
-            where (a,b) = break isPathSeparator $ dropWhile isPathSeparator x
+    g x = (dropWhile isPathSeparator a, dropWhile isPathSeparator b)
+      where
+        (a, b) = break isPathSeparator $ dropWhile isPathSeparator x
 
-        -- on windows, need to drop '/' which is kind of absolute, but not a drive
-        dropAbs (x:xs) | isPathSeparator x = xs
-        dropAbs x = dropDrive x
+    -- on windows, need to drop '/' which is kind of absolute, but not a drive
+    dropAbs (x : xs) | isPathSeparator x = xs
+    dropAbs x = dropDrive x
 
-        takeAbs (x:_) | isPathSeparator x = [pathSeparator]
-        takeAbs x = map (\y -> if isPathSeparator y then pathSeparator else toLower y) $ takeDrive x
+    takeAbs (x : _) | isPathSeparator x = [pathSeparator]
+    takeAbs x =
+        map (\y -> if isPathSeparator y then pathSeparator else toLower y) $ takeDrive x
 
 -- | Normalise a file
 --
@@ -665,33 +674,35 @@ makeRelative root path
 -- > Windows: normalise "." == "."
 -- > Posix:   normalise "./" == "./"
 normalise :: FilePath -> FilePath
-normalise path = joinDrive (normaliseDrive drv) (f pth)
-              ++ [pathSeparator | not (null pth) && isPathSeparator (last pth)]
-    where
-        (drv,pth) = splitDrive path
+normalise path =
+    joinDrive (normaliseDrive drv) (f pth)
+        ++ [pathSeparator | not (null pth) && isPathSeparator (last pth)]
+  where
+    (drv, pth) = splitDrive path
 
-        f = joinPath . dropDots [] . splitDirectories . propSep
+    f = joinPath . dropDots [] . splitDirectories . propSep
 
-        propSep (a:b:xs)
-         | isPathSeparator a && isPathSeparator b = propSep (a:xs)
-        propSep (a:xs)
-         | isPathSeparator a = pathSeparator : propSep xs
-        propSep (x:xs) = x : propSep xs
-        propSep [] = []
+    propSep (a : b : xs)
+        | isPathSeparator a && isPathSeparator b = propSep (a : xs)
+    propSep (a : xs)
+        | isPathSeparator a = pathSeparator : propSep xs
+    propSep (x : xs) = x : propSep xs
+    propSep [] = []
 
-        dropDots acc (".":xs) | not $ null xs = dropDots acc xs
-        dropDots acc (x:xs) = dropDots (x:acc) xs
-        dropDots acc [] = reverse acc
+    dropDots acc ("." : xs) | not $ null xs = dropDots acc xs
+    dropDots acc (x : xs) = dropDots (x : acc) xs
+    dropDots acc [] = reverse acc
 
 normaliseDrive :: FilePath -> FilePath
 normaliseDrive drive | isPosix = drive
-normaliseDrive drive = if isJust $ readDriveLetter x2
-                       then map toUpper x2
-                       else drive
-    where
-        x2 = map repSlash drive
+normaliseDrive drive =
+    if isJust $ readDriveLetter x2
+        then map toUpper x2
+        else drive
+  where
+    x2 = map repSlash drive
 
-        repSlash x = if isPathSeparator x then pathSeparator else x
+    repSlash x = if isPathSeparator x then pathSeparator else x
 
 {- xxx
 -- information for validity functions on Windows
@@ -723,7 +734,6 @@ isValid path =
     where
         x2 = dropDrive path
         f x = map toUpper (dropExtensions x) `elem` badElements
-
 
 -- | Take a FilePath and make it valid; does not change already valid FilePaths.
 --
@@ -768,7 +778,6 @@ makeValid path = joinDrive drv $ validElements $ validChars pth
 isRelative :: FilePath -> Bool
 isRelative = isRelativeDrive . takeDrive
 
-
 -- > isRelativeDrive "" == True
 -- > Windows: isRelativeDrive "c:\\" == False
 -- > Windows: isRelativeDrive "c:/" == False
@@ -776,9 +785,9 @@ isRelative = isRelativeDrive . takeDrive
 -- > Windows: isRelativeDrive "\\\\foo" == False
 -- > Posix:   isRelativeDrive "/" == False
 isRelativeDrive :: String -> Bool
-isRelativeDrive x = null x ||
-    maybe False (not . isPathSeparator . last . fst) (readDriveLetter x)
-
+isRelativeDrive x =
+    null x
+        || maybe False (not . isPathSeparator . last . fst) (readDriveLetter x)
 
 -- | @not . 'isRelative'@
 --
