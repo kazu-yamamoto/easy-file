@@ -37,8 +37,8 @@ import qualified System.Directory as D (
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
 #endif
-import qualified Control.Exception as E
 import System.Environment
+import qualified System.IO.Error as E
 
 ----------------------------------------------------------------
 
@@ -96,7 +96,7 @@ getHomeDirectory = fixPath <$> D.getHomeDirectory
 getHomeDirectory2 :: IO (Maybe FilePath)
 getHomeDirectory2 =
     (Just . fixPath <$> getEnv "HOME")
-        `E.catch` \(_ :: E.IOException) -> return Nothing
+        `E.catchIOError` \_ -> return Nothing
 
 -- | Returns the pathname of a directory in which application-specific
 -- data for the current user can be stored.  The result of
