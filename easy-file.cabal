@@ -20,9 +20,6 @@ Tested-With:
   GHC == 9.6.7
   GHC == 9.4.8
   GHC == 9.2.8
-  GHC == 9.0.2
-  GHC == 8.10.7
-  GHC == 8.8.4
 
 Library
   Exposed-Modules:      System.EasyFile
@@ -30,7 +27,7 @@ Library
                         System.EasyFile.Directory
                         System.EasyFile.Missing
   Build-Depends:
-      base >= 4.9 && < 5
+      base >= 4.16 && < 5
     , directory
     , filepath
     , time
