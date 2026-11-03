@@ -34,9 +34,6 @@ import qualified System.Directory as D (
     getUserDocumentsDirectory,
  )
 
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
-#endif
 import System.Environment
 import qualified System.IO.Error as E
 
