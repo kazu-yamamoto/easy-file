@@ -24,13 +24,14 @@
 -- This module aims to resolve these problems and provides:
 --
 -- * 'getModificationTime', 'getAccessTime', 'getChangeTime', and
---   'getCreationTime'. They return 'UTCTime'.
+--   'getCreationTime'. They return 'UTCTime', truncated to seconds.
 --
 -- * 'isSymlink', 'getLinkCount', and 'hasSubDirectories'.
 --
 -- * \'\/\' as the single 'pathSeparator'. For instance,
 --   'getCurrentDirectory' returns a path whose separator is \'\/\'
---   even on Windows.
+--   even on Windows. Note that 'canonicalizePath', re-exported from
+--   "System.Directory" as is, may return a path with \'\\\' on Windows.
 --
 -- * 'getHomeDirectory2' which refers the @HOME@ environment variable.
 --

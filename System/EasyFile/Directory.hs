@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 module System.EasyFile.Directory (
     module System.EasyFile.Directory,

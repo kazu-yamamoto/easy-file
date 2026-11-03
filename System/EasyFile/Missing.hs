@@ -78,6 +78,7 @@ getChangeTime file = Just . epochTimeToUTCTime . statusChangeTime <$> getFileSta
 -- |
 -- The 'getModificationTime' operation returns the
 -- UTC time at which the file or directory was last modified.
+-- Unlike the one in "System.Directory", the time is truncated to seconds.
 --
 -- The operation may fail with:
 --
@@ -99,8 +100,9 @@ getModificationTime file = epochTimeToUTCTime . modificationTime <$> getFileStat
 -}
 
 -- |
--- The 'getModificationTime' operation returns the
+-- The 'getAccessTime' operation returns the
 -- UTC time at which the file or directory was last accessed.
+-- The time is truncated to seconds.
 getAccessTime :: FilePath -> IO UTCTime
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 getAccessTime file = accessTime <$> fileTime file
