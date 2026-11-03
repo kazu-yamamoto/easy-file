@@ -40,13 +40,13 @@ getLinkCount file = Just . fromIntegral . linkCount <$> getFileStatus file
 
 -- |
 --   This function returns whether or not a directory has sub-directories.
+--   It returns 'Nothing' on Mac and Windows. Since it relies on the link
+--   counter, the result is wrong on file systems such as btrfs.
 hasSubDirectories :: FilePath -> IO (Maybe Bool)
 #ifdef darwin_HOST_OS
 hasSubDirectories _ = return Nothing
 #else
-hasSubDirectories file = do
-  Just n <- getLinkCount file
-  return $ Just (n > 2)
+hasSubDirectories file = fmap (> 2) <$> getLinkCount file
 #endif
 
 ----------------------------------------------------------------
@@ -169,10 +169,12 @@ getFileSize file = fromIntegral . fileSize <$> getFileStatus file
 --   Since: 0.2.4.
 setFileSize :: FilePath -> Word64 -> IO ()
 #if (defined(mingw32_HOST_OS) || defined(__MINGW32__))
-setFileSize file siz = do
-    hdl <- createFile file gENERIC_WRITE fILE_SHARE_NONE Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
-    _ <- setFilePointerEx hdl (fromIntegral siz) fILE_CURRENT
+setFileSize file siz = bracket setup closeHandle $ \hdl -> do
+    _ <- setFilePointerEx hdl (fromIntegral siz) fILE_BEGIN
     setEndOfFile hdl
+  where
+    setup = createFile file gENERIC_WRITE fILE_SHARE_NONE Nothing
+                       oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
 #else
 setFileSize file siz = P.setFileSize file $ fromIntegral siz
 #endif
