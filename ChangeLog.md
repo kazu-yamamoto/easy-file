@@ -1,3 +1,12 @@
+## v0.2.6
+
+- Supporting GHC 9.2 or later only.
+- Fixing `setFileSize` leaking a file handle on Windows.
+- `hasSubDirectories` returns `Nothing` on Windows instead of
+  throwing an exception.
+- Documenting that timestamps are truncated to seconds and that
+  `canonicalizePath` may return a path with `\` on Windows.
+
 ## v0.2.5
 
 - setFileSizer can be built but raises an error for GHC < 8.10.6.
